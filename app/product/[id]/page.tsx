@@ -1,69 +1,37 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
-// Mock Database
-const products = [
-  {
-    id: 1,
-    name: "Sunset Projection Lamp",
-    price: "$24.99",
-    category: "Lighting",
-    description: "Bring the golden hour into your room anytime. 16 color modes with remote control. perfect for TikToks and cozy vibes.",
-    image: "https://images.unsplash.com/photo-1616469829581-73993eb86b02?auto=format&fit=crop&q=80&w=2070"
-  },
-  {
-    id: 2,
-    name: "Acrylic Desk Organizer",
-    price: "$18.50",
-    category: "Organization",
-    description: "Clear, aesthetic storage for your pens, makeup, or tech accessories. Keeps your desk clutter-free and Instagram-ready.",
-    image: "https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=2083&auto=format&fit=crop"
-  },
-  {
-    id: 3,
-    name: "Minimalist Ceramic Vase",
-    price: "$32.00",
-    category: "Decor",
-    description: "Handcrafted ceramic vase with a matte finish. The perfect statement piece for dried flowers or pampas grass.",
-    image: "https://images.unsplash.com/photo-1581539250439-c96689b516dd?q=80&w=1965&auto=format&fit=crop"
-  },
-  {
-    id: 4,
-    name: "Mechanical Keyboard 60%",
-    price: "$89.99",
-    category: "Tech",
-    description: "Compact 60% layout with hot-swappable switches. RGB backlighting and premium keycaps for the ultimate typing experience.",
-    image: "https://images.unsplash.com/photo-1595225476474-87563907a212?q=80&w=2071&auto=format&fit=crop"
-  }
-];
-
-// NOTE: We changed the type definition here to use Promise
+// 1. This is a Server Component, so it can talk to the DB directly
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   
-  // 1. Await the params to get the ID safely
   const resolvedParams = await params;
-  const productId = parseInt(resolvedParams.id);
+  const productId = resolvedParams.id;
 
-  // 2. Find the product
-  const product = products.find((p) => p.id === productId);
+  // 2. Fetch the specific product from Supabase
+  const { data: product, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', productId) // "eq" means "Equals"
+    .single(); // We expect only one result
 
-  // 3. If no product found, show 404
-  if (!product) {
-    notFound();
+  // 3. Handle errors (Product not found)
+  if (error || !product) {
+    console.error("Error fetching product:", error);
+    return notFound();
   }
 
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
         
-        {/* Back Button */}
-        <Link href="/" className="text-gray-500 hover:text-black mb-8 inline-block">
+        <Link href="/#trending" className="text-gray-500 hover:text-black mb-8 inline-block">
           &larr; Back to Home
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           
-          {/* Left: Image */}
+          {/* Image */}
           <div className="aspect-square rounded-3xl overflow-hidden bg-gray-100 shadow-xl">
             <img 
               src={product.image} 
@@ -72,7 +40,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             />
           </div>
 
-          {/* Right: Details */}
+          {/* Details */}
           <div>
             <span className="text-blue-600 font-bold tracking-wider uppercase text-sm">
               {product.category}
@@ -88,7 +56,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               {product.description}
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-4">
               <button className="flex-1 bg-black text-white px-8 py-4 rounded-full font-bold hover:bg-gray-800 transition transform active:scale-95">
                 Add to Cart
@@ -97,17 +64,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 ❤️
               </button>
             </div>
-
-            {/* Trust Badges */}
-            <div className="mt-12 flex gap-6 text-sm text-gray-500 border-t border-gray-100 pt-8">
-              <div className="flex items-center gap-2">
-                <span>🚚 Free Shipping</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span>🛡️ 1 Year Warranty</span>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
