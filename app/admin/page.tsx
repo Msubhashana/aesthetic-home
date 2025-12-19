@@ -7,39 +7,72 @@ import { useRouter } from "next/navigation";
 export default function AdminPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null); // New state for file
   
-  // Form State
+  // Form State (Removed 'image' from here since we handle it separately)
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    category: "Lighting", // Default value
+    category: "Lighting",
     description: "",
-    image: "", // We will paste a URL for now
   });
 
-  // Handle Input Changes
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle Submit
+  // New: Handle File Selection
+  const handleFileChange = (e: any) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
 
-    // 1. Send data to Supabase
-    const { error } = await supabase
-      .from('products')
-      .insert([formData]);
+    try {
+      let imageUrl = "";
 
-    if (error) {
-      alert("Error adding product: " + error.message);
-    } else {
+      // 1. Upload Image (if selected)
+      if (imageFile) {
+        // Create a unique name: "173461234_my-image.png"
+        const fileName = `${Date.now()}_${imageFile.name}`;
+        
+        const { data, error: uploadError } = await supabase.storage
+          .from('product-images') // Your bucket name
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        // 2. Get the Public URL
+        const { data: urlData } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(fileName);
+          
+        imageUrl = urlData.publicUrl;
+      }
+
+      // 3. Save Product to Database with the new Image URL
+      const { error: dbError } = await supabase
+        .from('products')
+        .insert([{ 
+          ...formData, 
+          image: imageUrl // Add the URL we just generated
+        }]);
+
+      if (dbError) throw dbError;
+
       alert("Product added successfully!");
-      router.push("/"); // Go back to homepage to see it
-      router.refresh(); // Force refresh the data
+      router.push("/");
+      router.refresh();
+
+    } catch (error: any) {
+      alert("Error: " + error.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -97,18 +130,25 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Image URL */}
+          {/* Image Upload (CHANGED) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-            <input 
-              name="image" required
-              className="w-full p-3 border border-gray-300 rounded-lg outline-none"
-              placeholder="https://..."
-              onChange={handleChange}
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              Tip: Go to Unsplash, right-click an image, and choose "Copy Image Address".
-            </p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition cursor-pointer relative">
+              <input 
+                type="file" 
+                accept="image/*" 
+                required
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              <div className="text-gray-500">
+                {imageFile ? (
+                  <span className="text-green-600 font-medium">Selected: {imageFile.name}</span>
+                ) : (
+                  <span>Click to upload image</span>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Submit Button */}
@@ -116,7 +156,7 @@ export default function AdminPage() {
             type="submit" disabled={loading}
             className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-50"
           >
-            {loading ? "Saving..." : "Add Product"}
+            {loading ? "Uploading & Saving..." : "Add Product"}
           </button>
 
         </form>
