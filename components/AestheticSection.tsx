@@ -11,7 +11,8 @@ const aesthetics = [
   {
     title: "Dark & Moody",
     description: "Velvet textures, deep colors, and cinematic lighting.",
-    image: "https://images.unsplash.com/photo-1550926870-cd21f05dd2e9?q=80&w=2070&auto=format&fit=crop",
+    // Updated this image URL since the old one was broken in your screenshot
+    image: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&q=80&w=2070", 
     link: "/style/moody",
     color: "bg-slate-900 text-white"
   },
@@ -33,11 +34,13 @@ export default function AestheticSection() {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {aesthetics.map((item) => (
-          <Link key={item.title} href={item.link} className="group block">
-            <div className={`rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 group-hover:-translate-y-2 ${item.color}`}>
+          // FIX 1: Added 'h-full' here so the link stretches to fill the grid row
+          <Link key={item.title} href={item.link} className="group block h-full">
+            <div className={`rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 group-hover:-translate-y-2 ${item.color} h-full flex flex-col`}>
               
               {/* Image Section */}
-              <div className="h-64 overflow-hidden">
+              {/* FIX 2: Added 'shrink-0' so the image never gets squashed */}
+              <div className="h-64 overflow-hidden shrink-0">
                 <img 
                   src={item.image} 
                   alt={item.title} 
@@ -46,7 +49,8 @@ export default function AestheticSection() {
               </div>
 
               {/* Text Section */}
-              <div className="p-6">
+              {/* FIX 3: Added 'flex-1' to push content to fill available space evenly */}
+              <div className="p-6 flex-1 flex flex-col justify-center">
                 <h3 className={`text-xl font-bold mb-2 ${item.title === 'Dark & Moody' ? 'text-white' : 'text-gray-900'}`}>
                   {item.title}
                 </h3>

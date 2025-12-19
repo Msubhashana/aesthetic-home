@@ -6,7 +6,7 @@ const products = [
     name: "Sunset Projection Lamp",
     price: "$24.99",
     category: "Lighting",
-    image: "https://images.unsplash.com/photo-1550926870-cd21f05dd2e9?q=80&w=2070&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1616469829581-73993eb86b02?auto=format&fit=crop&q=80&w=2070"
   },
   {
     id: 2,
