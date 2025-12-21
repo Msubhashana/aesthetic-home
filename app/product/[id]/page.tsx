@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import ProductActions from "@/components/ProductActions";
 
 // 1. This is a Server Component, so it can talk to the DB directly
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -56,14 +57,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               {product.description}
             </div>
 
-            <div className="flex gap-4">
-              <button className="flex-1 bg-black text-white px-8 py-4 rounded-full font-bold hover:bg-gray-800 transition transform active:scale-95">
-                Add to Cart
-              </button>
-              <button className="p-4 border border-gray-200 rounded-full hover:bg-gray-50 transition">
-                ❤️
-              </button>
-            </div>
+            <ProductActions product={product} />
           </div>
         </div>
       </div>

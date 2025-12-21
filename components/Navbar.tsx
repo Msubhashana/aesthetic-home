@@ -15,10 +15,21 @@ export default function Navbar() {
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-8">
-            <NavLink href="/category/lighting" label="Lighting" />
-            <NavLink href="/category/organization" label="Organization" />
-            <NavLink href="/category/decor" label="Decor" />
-            <NavLink href="/category/tech" label="Tech Setup" />
+            <Link href="/" className="text-gray-600 hover:text-black transition font-medium">
+              Home
+            </Link>
+            <Link href="/products/Lighting" className="text-gray-600 hover:text-black transition font-medium">
+              Lighting
+            </Link>
+            <Link href="/products/Decor" className="text-gray-600 hover:text-black transition font-medium">
+              Decor
+            </Link>
+            <Link href="/products/Tech" className="text-gray-600 hover:text-black transition font-medium">
+              Tech
+            </Link>
+            <Link href="/wishlist" className="text-gray-600 hover:text-red transition font-medium">
+              Wishlist
+            </Link>
           </div>
 
         </div>

@@ -1,27 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null); // New state for file
   
-  // Form State (Removed 'image' from here since we handle it separately)
+  // 1. DECLARE ALL STATE VARIABLES FIRST (Hooks must be at the top)
+  const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // This was causing the crash because it was below the 'return' in your previous code
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     category: "Lighting",
     description: "",
+    affiliate_link: "",
   });
 
+  // 2. SECURITY CHECK (useEffect is also a hook, so it stays up here)
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/login");
+      } else {
+        setIsAuthenticated(true);
+      }
+    };
+    checkSession();
+  }, [router]);
+
+  // 3. HELPER FUNCTIONS
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // New: Handle File Selection
   const handleFileChange = (e: any) => {
     if (e.target.files && e.target.files.length > 0) {
       setImageFile(e.target.files[0]);
@@ -35,18 +52,15 @@ export default function AdminPage() {
     try {
       let imageUrl = "";
 
-      // 1. Upload Image (if selected)
       if (imageFile) {
-        // Create a unique name: "173461234_my-image.png"
         const fileName = `${Date.now()}_${imageFile.name}`;
         
-        const { data, error: uploadError } = await supabase.storage
-          .from('product-images') // Your bucket name
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
           .upload(fileName, imageFile);
 
         if (uploadError) throw uploadError;
 
-        // 2. Get the Public URL
         const { data: urlData } = supabase.storage
           .from('product-images')
           .getPublicUrl(fileName);
@@ -54,12 +68,11 @@ export default function AdminPage() {
         imageUrl = urlData.publicUrl;
       }
 
-      // 3. Save Product to Database with the new Image URL
       const { error: dbError } = await supabase
         .from('products')
         .insert([{ 
           ...formData, 
-          image: imageUrl // Add the URL we just generated
+          image: imageUrl 
         }]);
 
       if (dbError) throw dbError;
@@ -75,9 +88,29 @@ export default function AdminPage() {
     }
   };
 
+  // 4. CONDITIONAL RETURN (This must be the LAST thing before the real UI)
+  if (!isAuthenticated) {
+    return null; // Return nothing while checking (or show a loading spinner)
+  }
+
+  // 5. THE REAL UI
   return (
     <div className="min-h-screen bg-gray-50 py-20 px-4">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
+        
+        {/* Logout Button */}
+        <div className="flex justify-end mb-4">
+          <button 
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.push("/login");
+            }}
+            className="text-sm text-red-600 font-medium hover:underline"
+          >
+            Sign Out
+          </button>
+        </div>
+
         <h1 className="text-3xl font-bold mb-8 text-gray-900">Add New Product</h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -130,7 +163,7 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Image Upload (CHANGED) */}
+          {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition cursor-pointer relative">
@@ -149,6 +182,17 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Affiliate Link */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Affiliate / Product Link</label>
+            <input 
+                name="affiliate_link" required
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none text-blue-600"
+                placeholder="https://amazon.com/dp/..."
+                onChange={handleChange}
+            />
           </div>
 
           {/* Submit Button */}
