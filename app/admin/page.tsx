@@ -17,6 +17,7 @@ export default function AdminPage() {
     name: "",
     price: "",
     category: "Lighting",
+    aesthetic: "Minimalist",
     description: "",
     affiliate_link: "",
   });
@@ -137,20 +138,44 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-            <select 
-              name="category"
-              className="w-full p-3 border border-gray-300 rounded-lg outline-none"
-              onChange={handleChange}
-            >
-              <option value="Lighting">Lighting</option>
-              <option value="Organization">Organization</option>
-              <option value="Decor">Decor</option>
-              <option value="Tech">Tech</option>
-            </select>
-          </div>
+      <div className="grid grid-cols-2 gap-4">
+
+        {/* 1. FUNCTIONAL CATEGORY (For Navbar) */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Item Type</label>
+          <select 
+            name="category"
+            className="w-full p-3 border border-gray-300 rounded-lg outline-none"
+            onChange={handleChange}
+            value={formData.category}
+          >
+            <option value="Lighting">Lighting</option>
+            <option value="Decor">Decor</option>
+            <option value="Tech">Tech</option>
+            <option value="Organizer">Organizer</option>
+          </select>
+        </div>
+
+        {/* 2. AESTHETIC CATEGORY (For Homepage Cards) */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Aesthetic Vibe</label>
+          <select 
+            name="aesthetic"
+            className="w-full p-3 border border-gray-300 rounded-lg outline-none"
+            onChange={handleChange}
+            value={formData.aesthetic}
+          >
+            {/* Matches the names in your image_faf54c.jpg */}
+            <option value="Minimalist">Warm Minimalist</option>
+            <option value="Moody">Dark & Moody</option>
+            <option value="Nature">Biophilic / Nature</option>
+            {/* Add others if needed 
+            <option value="Retro">Retro / Vintage</option>
+            */}
+          </select>
+        </div>
+
+      </div>
 
           {/* Description */}
           <div>

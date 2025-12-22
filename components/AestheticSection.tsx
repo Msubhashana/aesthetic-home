@@ -5,7 +5,7 @@ const aesthetics = [
     title: "Warm Minimalist",
     description: "Clean lines, cream tones, and clutter-free living.",
     image: "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=2070&auto=format&fit=crop",
-    link: "/style/minimalist",
+    link: "/aesthetic/Minimalist",
     color: "bg-orange-50"
   },
   {
@@ -13,21 +13,21 @@ const aesthetics = [
     description: "Velvet textures, deep colors, and cinematic lighting.",
     // Updated this image URL since the old one was broken in your screenshot
     image: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&q=80&w=2070", 
-    link: "/style/moody",
+    link: "/aesthetic/Moody",
     color: "bg-slate-900 text-white"
   },
   {
     title: "Biophilic / Nature",
     description: "Bring the outdoors in with plants, wood, and sunlight.",
     image: "https://images.unsplash.com/photo-1616047006789-b7af5afb8c20?q=80&w=2080&auto=format&fit=crop",
-    link: "/style/nature",
+    link: "/aesthetic/Nature",
     color: "bg-green-50"
   }
 ];
 
 export default function AestheticSection() {
   return (
-    <section className="py-20 px-4 max-w-7xl mx-auto">
+    <section id="vibes" className="py-20 px-4 max-w-7xl mx-auto">
       <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
         Shop by Aesthetic
       </h2>

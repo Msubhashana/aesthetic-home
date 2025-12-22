@@ -24,12 +24,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
-        
-        <Link href="/#trending" className="text-gray-500 hover:text-black mb-8 inline-block">
-          &larr; Back to Home
-        </Link>
-
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           
           {/* Image */}
