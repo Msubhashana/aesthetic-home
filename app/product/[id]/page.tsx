@@ -17,9 +17,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     .eq('id', productId) // "eq" means "Equals"
     .single(); // We expect only one result
 
-  // 3. Handle errors (Product not found)
-  if (error || !product) {
-    console.error("Error fetching product:", error);
+  // 1. Log actual database errors (Connection issues, etc.)
+  if (error) {
+    console.error("Supabase Error:", error);
+  }
+
+  // 2. If no product exists (Deleted or wrong ID), just show 404 page silently
+  if (!product) {
     return notFound();
   }
 
