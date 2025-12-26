@@ -10,6 +10,7 @@ export default function AdminPage() {
   // 1. DECLARE ALL STATE VARIABLES FIRST (Hooks must be at the top)
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // This was causing the crash because it was below the 'return' in your previous code
@@ -47,47 +48,60 @@ export default function AdminPage() {
   };
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      let imageUrl = "";
+  try {
+    let mainImageUrl = "";
+    let galleryUrls: string[] = [];
 
-      if (imageFile) {
-        const fileName = `${Date.now()}_${imageFile.name}`;
-        
+    // 1. Upload MAIN Image (Existing logic)
+    if (imageFile) {
+      const fileName = `main_${Date.now()}_${imageFile.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, imageFile);
+      if (uploadError) throw uploadError;
+      
+      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+      mainImageUrl = data.publicUrl;
+    }
+
+    // 2. Upload GALLERY Images (New logic)
+    if (galleryFiles.length > 0) {
+      for (const file of galleryFiles) {
+        const fileName = `gallery_${Date.now()}_${file.name}`;
         const { error: uploadError } = await supabase.storage
           .from('product-images')
-          .upload(fileName, imageFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(fileName);
-          
-        imageUrl = urlData.publicUrl;
+          .upload(fileName, file);
+        
+        if (!uploadError) {
+          const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+          galleryUrls.push(data.publicUrl);
+        }
       }
-
-      const { error: dbError } = await supabase
-        .from('products')
-        .insert([{ 
-          ...formData, 
-          image: imageUrl 
-        }]);
-
-      if (dbError) throw dbError;
-
-      alert("Product added successfully!");
-      router.push("/");
-      router.refresh();
-
-    } catch (error: any) {
-      alert("Error: " + error.message);
-    } finally {
-      setLoading(false);
     }
-  };
+
+    // 3. Save to Database
+    const { error: dbError } = await supabase
+      .from('products')
+      .insert([{ 
+        ...formData, 
+        image: mainImageUrl, // Main image
+        gallery: galleryUrls // Extra images array
+      }]);
+
+    if (dbError) throw dbError;
+
+    alert("Product added successfully!");
+    router.push("/admin/dashboard");
+
+  } catch (error: any) {
+    alert("Error: " + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // 4. CONDITIONAL RETURN (This must be the LAST thing before the real UI)
   if (!isAuthenticated) {
@@ -98,19 +112,33 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-20 px-4">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
-        
-        {/* Logout Button */}
-        <div className="flex justify-end mb-4">
-          <button 
-            onClick={async () => {
-              await supabase.auth.signOut();
-              router.push("/login");
-            }}
-            className="text-sm text-red-600 font-medium hover:underline"
-          >
-            Sign Out
-          </button>
+
+        {/* --- NEW HEADER SECTION --- */}
+        <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+          <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
+          
+          <div className="flex gap-4 text-sm font-medium">
+            {/* Link to Dashboard */}
+            <button 
+              onClick={() => router.push("/admin/dashboard")}
+              className="text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition"
+            >
+              View Dashboard (List)
+            </button>
+
+            {/* Logout */}
+            <button 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                router.push("/login");
+              }}
+              className="text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg transition"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
+      {/* --- END HEADER --- */}
 
         <h1 className="text-3xl font-bold mb-8 text-gray-900">Add New Product</h1>
         
@@ -204,6 +232,39 @@ export default function AdminPage() {
                   <span className="text-green-600 font-medium">Selected: {imageFile.name}</span>
                 ) : (
                   <span>Click to upload image</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ... Existing Main Image Input is above here ... */}
+
+          {/* EXTRA GALLERY IMAGES */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Extra Gallery Images (Max 3)
+            </label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition cursor-pointer relative bg-gray-50">
+              <input 
+                type="file" 
+                accept="image/*" 
+                multiple // <--- Allow multiple files
+                onChange={(e) => {
+                  if (e.target.files) {
+                    // Convert FileList to Array and take top 3
+                    const files = Array.from(e.target.files).slice(0, 3);
+                    setGalleryFiles(files);
+                  }
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              <div className="text-gray-500">
+                {galleryFiles.length > 0 ? (
+                  <span className="text-blue-600 font-medium">
+                    {galleryFiles.length} extra images selected
+                  </span>
+                ) : (
+                  <span>+ Add Side Images (Optional)</span>
                 )}
               </div>
             </div>

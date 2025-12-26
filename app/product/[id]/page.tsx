@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import ProductActions from "@/components/ProductActions";
+import ImageGallery from "@/components/ImageGallery";
 
 // 1. This is a Server Component, so it can talk to the DB directly
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -28,11 +29,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           
           {/* Image */}
-          <div className="aspect-square rounded-3xl overflow-hidden bg-gray-100 shadow-xl">
-            <img 
-              src={product.image} 
-              alt={product.name} 
-              className="w-full h-full object-cover"
+          <div className="h-full">
+            <ImageGallery 
+              mainImage={product.image} 
+              gallery={product.gallery} 
             />
           </div>
 
@@ -41,18 +41,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <span className="text-blue-600 font-bold tracking-wider uppercase text-sm">
               {product.category}
             </span>
-            <h1 className="text-4xl font-extrabold text-gray-900 mt-2 mb-4">
+            <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
               {product.name}
             </h1>
             <p className="text-3xl font-bold text-gray-900 mb-8">
               {product.price}
             </p>
+            <ProductActions product={product} />
 
             <div className="prose text-gray-500 mb-10 leading-relaxed">
               {product.description}
             </div>
 
-            <ProductActions product={product} />
+            
           </div>
         </div>
       </div>

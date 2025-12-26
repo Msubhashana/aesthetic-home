@@ -32,7 +32,7 @@ export default function Navbar() {
           <Link href="/products/Organizer" className="text-gray-600 hover:text-black transition font-medium">
             Organizer
           </Link>
-          <Link href="/wishlist" className="text-gray-600 hover:text-black transition font-medium flex items-center gap-2">
+          <Link href="/wishlist" className="text-red-600 hover:text-red-700 transition font-medium flex items-center gap-2">
             Wishlist
           </Link>
         </div>
@@ -101,11 +101,11 @@ export default function Navbar() {
             </Link>
             <Link 
               href="/wishlist" 
-              className="text-lg font-medium text-gray-700 hover:text-blue-600 flex items-center justify-between"
+              className="text-lg font-medium text-red-600 hover:text-blue-600 flex items-center justify-between"
               onClick={() => setIsOpen(false)}
             >
               Wishlist
-              <span className="text-sm bg-gray-100 px-2 py-1 rounded-full text-gray-500">Saved</span>
+              <span className="text-sm bg-gray-100 px-2 py-1 rounded-full text-red-600">Saved</span>
             </Link>
           </div>
         </div>

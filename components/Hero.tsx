@@ -16,17 +16,19 @@ export default function Hero() {
           </p>
           <div className="mt-8 flex gap-4 justify-center lg:justify-start">
             <Link 
-              href="/category/lighting" 
+              href="/#vibes" 
               className="rounded-full bg-blue-600 px-8 py-3 text-white font-medium hover:bg-blue-700 transition"
             >
               Shop Trends
             </Link>
+            {/*
             <Link 
               href="/about" 
               className="rounded-full bg-white px-8 py-3 text-blue-600 font-medium border border-gray-200 hover:bg-gray-50 transition"
             >
               Our Story
             </Link>
+            */}
           </div>
         </div>
 
