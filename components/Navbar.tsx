@@ -12,7 +12,10 @@ export default function Navbar() {
         
         {/* LOGO */}
         <Link href="/" className="text-xl font-bold tracking-tight">
-          AESTHETIC<span className="text-blue-600">HOME</span>
+          <span className = "text-1xl uppercase">D</span>AILY
+          <span className = "text-1xl uppercase">D</span>ECOR
+          <span className = "text-blue-600 text-1xl uppercase">F</span>
+          <span className = "text-blue-600">INDS</span>
         </Link>
 
         {/* --- DESKTOP MENU (Hidden on Mobile) --- */}

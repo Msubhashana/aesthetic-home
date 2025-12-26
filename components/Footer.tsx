@@ -11,7 +11,7 @@ export default function Footer() {
           {/* 1. LEFT COLUMN: Brand & Socials (Blue Square Area) */}
           <div className="space-y-4">
             <Link href="/" className="text-2xl font-bold tracking-tight block">
-              AESTHETIC<span className="text-blue-500">HOME</span>
+              DAILYDECOR<span className="text-blue-500">FINDS</span>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
               Curating the most viral and cozy home decor trends for your dream space.
