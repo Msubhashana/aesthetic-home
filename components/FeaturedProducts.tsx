@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic"; // <--- Add this line at the top!
+
 export default async function FeaturedProducts() {
   
   // UPDATED QUERY: Only fetch products where 'is_trending' is TRUE
