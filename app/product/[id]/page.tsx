@@ -1,28 +1,53 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import ProductActions from "@/components/ProductActions";
 import ImageGallery from "@/components/ImageGallery";
+import { Metadata } from "next";
 
-// 1. This is a Server Component, so it can talk to the DB directly
+// --- FIX 1: generateMetadata ---
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  // CRITICAL: We must "await" the params first in Next.js 15
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
+
+  // Debugging: Check your server console to see if the ID is printing correctly
+  console.log("Metadata fetching ID:", id); 
+
+  const { data: product } = await supabase
+    .from('products')
+    .select('name, description')
+    .eq('id', id) // Use the 'id' variable we just extracted, NOT params.id
+    .single();
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+    };
+  }
+
+  return {
+    title: `${product.name}`,
+    description: product.description,
+  };
+}
+
+// --- FIX 2: Main Page Component ---
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   
+  // CRITICAL: Await params here too
   const resolvedParams = await params;
   const productId = resolvedParams.id;
 
-  // 2. Fetch the specific product from Supabase
   const { data: product, error } = await supabase
     .from('products')
     .select('*')
-    .eq('id', productId) // "eq" means "Equals"
-    .single(); // We expect only one result
+    .eq('id', productId)
+    .single();
 
-  // 1. Log actual database errors (Connection issues, etc.)
   if (error) {
     console.error("Supabase Error:", error);
   }
 
-  // 2. If no product exists (Deleted or wrong ID), just show 404 page silently
   if (!product) {
     return notFound();
   }
@@ -56,8 +81,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <div className="prose text-gray-500 mb-10 leading-relaxed">
               {product.description}
             </div>
-
-            
           </div>
         </div>
       </div>
