@@ -67,7 +67,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-800 mt-16 pt-8 text-center text-gray-600 text-sm">
-          <p>© 2025 Aesthetic Home. All rights reserved.</p>
+          <p>© 2026 Daily Decor Finds. All rights reserved.</p>
         </div>
       </div>
     </footer>
