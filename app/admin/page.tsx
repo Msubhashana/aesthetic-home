@@ -237,8 +237,6 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* ... Existing Main Image Input is above here ... */}
-
           {/* EXTRA GALLERY IMAGES */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
