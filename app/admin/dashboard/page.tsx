@@ -93,7 +93,7 @@ export default function AdminDashboard() {
             <thead className="bg-gray-50 border-b border-gray-100 text-gray-500 uppercase text-xs tracking-wider">
               <tr>
                 <th className="p-4">Product</th>
-                <th className="p-4 text-center">Trending</th> {/* NEW COLUMN */}
+                <th className="p-4 text-center">Trending</th>
                 <th className="p-4">Link Status</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
