@@ -4,7 +4,7 @@ import ProductActions from "@/components/ProductActions";
 import ImageGallery from "@/components/ImageGallery";
 import { Metadata } from "next";
 
-// --- FIX 1: generateMetadata ---
+// --- FIX 1: generateMetadata (Updated for Pinterest) ---
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   // CRITICAL: We must "await" the params first in Next.js 15
   const resolvedParams = await params;
@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const { data: product } = await supabase
     .from('products')
-    .select('name, description')
-    .eq('id', id) // Use the 'id' variable we just extracted, NOT params.id
+    .select('name, description, image') // <--- ADDED 'image' HERE so Pinterest can see it
+    .eq('id', id) 
     .single();
 
   if (!product) {
@@ -26,12 +26,28 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   return {
-    title: `${product.name}`,
+    title: product.name,
     description: product.description,
+    // ADDED THIS SECTION FOR PINTEREST RICH PINS
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      url: `https://www.dailydecorfinds.com/product/${id}`, // Ensures the link goes to this specific product
+      siteName: "Daily Decor Finds",
+      images: [
+        {
+          url: product.image, // The image Pinterest will display
+          width: 800,
+          height: 600,
+          alt: product.name,
+        },
+      ],
+      type: "website",
+    },
   };
 }
 
-// --- FIX 2: Main Page Component ---
+// --- FIX 2: Main Page Component (Kept exactly as you had it) ---
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   
   // CRITICAL: Await params here too
