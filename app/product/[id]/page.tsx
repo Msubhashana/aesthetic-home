@@ -4,19 +4,19 @@ import ProductActions from "@/components/ProductActions";
 import ImageGallery from "@/components/ImageGallery";
 import { Metadata } from "next";
 
-// --- FIX 1: generateMetadata (Updated for Pinterest) ---
+// --- FIX 1: generateMetadata ---
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   // CRITICAL: We must "await" the params first in Next.js 15
   const resolvedParams = await params;
   const id = resolvedParams.id;
 
   // Debugging: Check your server console to see if the ID is printing correctly
-  console.log("Metadata fetching ID:", id); 
+  console.log("Metadata fetching ID:", id);
 
   const { data: product } = await supabase
     .from('products')
-    .select('name, description, image') // <--- ADDED 'image' HERE so Pinterest can see it
-    .eq('id', id) 
+    .select('name, description')
+    .eq('id', id) // Use the 'id' variable we just extracted, NOT params.id
     .single();
 
   if (!product) {
@@ -26,30 +26,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   return {
-    title: product.name,
+    title: `${product.name}`,
     description: product.description,
-    // ADDED THIS SECTION FOR PINTEREST RICH PINS
-    openGraph: {
-      title: product.name,
-      description: product.description,
-      url: `https://www.dailydecorfinds.com/product/${id}`, // Ensures the link goes to this specific product
-      siteName: "Daily Decor Finds",
-      images: [
-        {
-          url: product.image, // The image Pinterest will display
-          width: 800,
-          height: 600,
-          alt: product.name,
-        },
-      ],
-      type: "website",
-    },
   };
 }
 
-// --- FIX 2: Main Page Component (Kept exactly as you had it) ---
+// --- FIX 2: Main Page Component ---
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  
+
   // CRITICAL: Await params here too
   const resolvedParams = await params;
   const productId = resolvedParams.id;
@@ -72,12 +56,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          
+
           {/* Image */}
           <div className="h-full">
-            <ImageGallery 
-              mainImage={product.image} 
-              gallery={product.gallery} 
+            <ImageGallery
+              mainImage={product.image}
+              gallery={product.gallery}
             />
           </div>
 
